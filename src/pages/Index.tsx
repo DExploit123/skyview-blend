@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Header } from "@/components/Header";
+import { Header, UnitPreferences } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { CurrentWeather } from "@/components/CurrentWeather";
 import { WeatherStats } from "@/components/WeatherStats";
@@ -9,6 +9,11 @@ import { HourlyForecast } from "@/components/HourlyForecast";
 const Index = () => {
   const [units, setUnits] = useState<"metric" | "imperial">("imperial");
   const [location, setLocation] = useState("Berlin, Germany");
+  const [unitPreferences, setUnitPreferences] = useState<UnitPreferences>({
+    temperature: "fahrenheit",
+    windSpeed: "mph",
+    precipitation: "in",
+  });
 
   // Mock data - in a real app, this would come from an API
   const currentTemp = units === "metric" ? 20 : 68;
@@ -44,7 +49,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header units={units} onUnitsChange={setUnits} />
+      <Header 
+        units={units} 
+        onUnitsChange={setUnits}
+        unitPreferences={unitPreferences}
+        onUnitPreferencesChange={setUnitPreferences}
+      />
       
       <main className="container max-w-7xl mx-auto px-4 pb-12">
         <div className="text-center mb-12">
