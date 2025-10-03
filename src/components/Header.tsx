@@ -57,7 +57,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm" className="gap-2">
+          <Button variant="secondary" size="sm" className="gap-2 rounded-xl border-2 border-transparent hover:border-border transition-all">
             <Settings className="h-4 w-4" />
             Units
           </Button>
@@ -65,7 +65,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
         <DropdownMenuContent align="end" className="w-56 bg-weather-card border-border/50">
           <DropdownMenuItem 
             onClick={() => handleQuickSwitch("imperial")}
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-secondary/70 transition-all"
           >
             Switch to Imperial
           </DropdownMenuItem>
@@ -77,7 +77,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
           </DropdownMenuLabel>
           <DropdownMenuItem 
             onClick={() => handleUnitChange("temperature", "celsius")}
-            className="cursor-pointer pl-8 relative"
+            className="cursor-pointer pl-8 relative hover:bg-secondary/70 transition-all"
           >
             {unitPreferences.temperature === "celsius" && (
               <Check className="absolute left-2 h-4 w-4" />
@@ -86,7 +86,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => handleUnitChange("temperature", "fahrenheit")}
-            className="cursor-pointer pl-8 relative"
+            className="cursor-pointer pl-8 relative hover:bg-secondary/70 transition-all"
           >
             {unitPreferences.temperature === "fahrenheit" && (
               <Check className="absolute left-2 h-4 w-4" />
@@ -101,7 +101,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
           </DropdownMenuLabel>
           <DropdownMenuItem 
             onClick={() => handleUnitChange("windSpeed", "kmh")}
-            className="cursor-pointer pl-8 relative"
+            className="cursor-pointer pl-8 relative hover:bg-secondary/70 transition-all"
           >
             {unitPreferences.windSpeed === "kmh" && (
               <Check className="absolute left-2 h-4 w-4" />
@@ -110,7 +110,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => handleUnitChange("windSpeed", "mph")}
-            className="cursor-pointer pl-8 relative"
+            className="cursor-pointer pl-8 relative hover:bg-secondary/70 transition-all"
           >
             {unitPreferences.windSpeed === "mph" && (
               <Check className="absolute left-2 h-4 w-4" />
@@ -125,7 +125,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
           </DropdownMenuLabel>
           <DropdownMenuItem 
             onClick={() => handleUnitChange("precipitation", "mm")}
-            className="cursor-pointer pl-8 relative"
+            className="cursor-pointer pl-8 relative hover:bg-secondary/70 transition-all"
           >
             {unitPreferences.precipitation === "mm" && (
               <Check className="absolute left-2 h-4 w-4" />
@@ -134,7 +134,7 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => handleUnitChange("precipitation", "in")}
-            className="cursor-pointer pl-8 relative"
+            className="cursor-pointer pl-8 relative hover:bg-secondary/70 transition-all"
           >
             {unitPreferences.precipitation === "in" && (
               <Check className="absolute left-2 h-4 w-4" />

@@ -5,10 +5,17 @@ import { CurrentWeather } from "@/components/CurrentWeather";
 import { WeatherStats } from "@/components/WeatherStats";
 import { DailyForecast } from "@/components/DailyForecast";
 import { HourlyForecast } from "@/components/HourlyForecast";
+import { 
+  CurrentWeatherLoading, 
+  WeatherStatsLoading, 
+  DailyForecastLoading, 
+  HourlyForecastLoading 
+} from "@/components/LoadingState";
 
 const Index = () => {
   const [units, setUnits] = useState<"metric" | "imperial">("imperial");
   const [location, setLocation] = useState("Berlin, Germany");
+  const [isLoading, setIsLoading] = useState(false);
   const [unitPreferences, setUnitPreferences] = useState<UnitPreferences>({
     temperature: "fahrenheit",
     windSpeed: "mph",
@@ -43,8 +50,12 @@ const Index = () => {
   ];
 
   const handleSearch = (newLocation: string) => {
+    setIsLoading(true);
     setLocation(newLocation);
-    // In a real app, this would trigger an API call
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
   };
 
   return (
@@ -66,27 +77,43 @@ const Index = () => {
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <CurrentWeather
-              location={location}
-              date="Tuesday, Aug 5, 2025"
-              temperature={currentTemp}
-              icon="sun"
-              units={units}
-            />
+            {isLoading ? (
+              <CurrentWeatherLoading />
+            ) : (
+              <CurrentWeather
+                location={location}
+                date="Tuesday, Aug 5, 2025"
+                temperature={currentTemp}
+                icon="sun"
+                units={units}
+              />
+            )}
             
-            <WeatherStats
-              feelsLike={feelsLike}
-              humidity={46}
-              wind={wind}
-              precipitation={precipitation}
-              units={units}
-            />
+            {isLoading ? (
+              <WeatherStatsLoading />
+            ) : (
+              <WeatherStats
+                feelsLike={feelsLike}
+                humidity={46}
+                wind={wind}
+                precipitation={precipitation}
+                units={units}
+              />
+            )}
             
-            <DailyForecast forecast={dailyForecast} />
+            {isLoading ? (
+              <DailyForecastLoading />
+            ) : (
+              <DailyForecast forecast={dailyForecast} />
+            )}
           </div>
 
           <div className="lg:col-span-1">
-            <HourlyForecast forecast={hourlyForecast} />
+            {isLoading ? (
+              <HourlyForecastLoading />
+            ) : (
+              <HourlyForecast forecast={hourlyForecast} />
+            )}
           </div>
         </div>
       </main>

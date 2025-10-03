@@ -68,7 +68,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
                   setOpen(true);
                 }
               }}
-              className="pl-10 h-12 bg-input border-0"
+              className="pl-10 h-12 bg-input border-2 border-transparent rounded-2xl transition-all hover:bg-input/80 focus:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             />
           </div>
         </PopoverTrigger>
@@ -82,7 +82,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
               <button
                 key={index}
                 onClick={() => handleSuggestionClick(city)}
-                className="px-4 py-3 text-left hover:bg-accent/50 transition-colors text-sm text-foreground border-b border-border/30 last:border-0"
+                className="px-4 py-3 text-left hover:bg-secondary/70 transition-all text-sm text-foreground border-b border-border/30 last:border-0 cursor-pointer"
               >
                 {city}
               </button>
@@ -90,7 +90,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
           </div>
         </PopoverContent>
       </Popover>
-      <Button onClick={() => handleSearch()} size="lg" className="px-8">
+      <Button onClick={() => handleSearch()} size="lg" className="px-8 rounded-2xl hover:scale-105 transition-all">
         Search
       </Button>
     </div>

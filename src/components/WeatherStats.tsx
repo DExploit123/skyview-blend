@@ -38,7 +38,7 @@ export const WeatherStats = ({ feelsLike, humidity, wind, precipitation, units }
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat) => (
-        <div key={stat.label} className="bg-weather-card rounded-2xl p-6 border border-border/50">
+        <div key={stat.label} className="bg-weather-card rounded-2xl p-6 border border-border/50 hover:bg-secondary/30 transition-all">
           <div className="flex items-center gap-2 mb-3">
             <stat.icon className="h-4 w-4 text-muted-foreground" />
             <p className="text-sm text-weather-textMuted">{stat.label}</p>

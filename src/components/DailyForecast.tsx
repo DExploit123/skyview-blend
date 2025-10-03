@@ -19,7 +19,7 @@ export const DailyForecast = ({ forecast }: DailyForecastProps) => {
         {forecast.map((day, index) => (
           <div
             key={index}
-            className="bg-weather-card rounded-2xl p-4 border border-border/50 flex flex-col items-center gap-3 hover:bg-secondary/50 transition-colors"
+            className="bg-weather-card rounded-2xl p-4 border border-border/50 flex flex-col items-center gap-3 hover:bg-secondary/50 hover:scale-105 transition-all cursor-pointer"
           >
             <p className="text-sm font-medium">{day.day}</p>
             <WeatherIcon type={day.icon} className="h-10 w-10" />

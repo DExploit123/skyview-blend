@@ -44,7 +44,7 @@ export const HourlyForecast = ({ forecast, selectedDay = "Tuesday" }: HourlyFore
         {forecast.map((hour, index) => (
           <div
             key={index}
-            className="flex items-center justify-between p-4 rounded-xl hover:bg-secondary/50 transition-colors"
+            className="flex items-center justify-between p-4 rounded-xl hover:bg-secondary/50 transition-all cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <WeatherIcon type={hour.icon} className="h-6 w-6" />
