@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header, UnitPreferences } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { CurrentWeather } from "@/components/CurrentWeather";
@@ -13,68 +13,54 @@ import {
 } from "@/components/LoadingState";
 import { ErrorState } from "@/components/ErrorState";
 import { NoResultsState } from "@/components/NoResultsState";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Index = () => {
   const [units, setUnits] = useState<"metric" | "imperial">("imperial");
-  const [location, setLocation] = useState("Berlin, Germany");
+  const [location, setLocation] = useState("London");
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [hasNoResults, setHasNoResults] = useState(false);
+  const [weatherData, setWeatherData] = useState<any>(null);
   const [unitPreferences, setUnitPreferences] = useState<UnitPreferences>({
     temperature: "fahrenheit",
     windSpeed: "mph",
     precipitation: "in",
   });
 
-  // Mock data - in a real app, this would come from an API
-  const currentTemp = units === "metric" ? 20 : 68;
-  const feelsLike = units === "metric" ? 18 : 64;
-  const wind = units === "metric" ? 14 : 9;
-  const precipitation = units === "metric" ? 0 : 0;
+  useEffect(() => {
+    handleSearch(location);
+  }, []);
 
-  const dailyForecast = [
-    { day: "Tue", icon: "drizzle" as const, high: units === "metric" ? 20 : 68, low: units === "metric" ? 14 : 57 },
-    { day: "Wed", icon: "rain" as const, high: units === "metric" ? 21 : 70, low: units === "metric" ? 15 : 59 },
-    { day: "Thu", icon: "sun" as const, high: units === "metric" ? 24 : 75, low: units === "metric" ? 14 : 57 },
-    { day: "Fri", icon: "partly-cloudy" as const, high: units === "metric" ? 25 : 77, low: units === "metric" ? 13 : 55 },
-    { day: "Sat", icon: "rain" as const, high: units === "metric" ? 21 : 70, low: units === "metric" ? 15 : 59 },
-    { day: "Sun", icon: "cloud" as const, high: units === "metric" ? 25 : 77, low: units === "metric" ? 16 : 61 },
-    { day: "Mon", icon: "wind" as const, high: units === "metric" ? 24 : 75, low: units === "metric" ? 15 : 59 },
-  ];
-
-  const hourlyForecast = [
-    { time: "3 PM", icon: "cloud" as const, temperature: units === "metric" ? 20 : 68 },
-    { time: "4 PM", icon: "partly-cloudy" as const, temperature: units === "metric" ? 20 : 68 },
-    { time: "5 PM", icon: "sun" as const, temperature: units === "metric" ? 20 : 68 },
-    { time: "6 PM", icon: "cloud" as const, temperature: units === "metric" ? 19 : 66 },
-    { time: "7 PM", icon: "cloud" as const, temperature: units === "metric" ? 18 : 66 },
-    { time: "8 PM", icon: "wind" as const, temperature: units === "metric" ? 18 : 64 },
-    { time: "9 PM", icon: "cloud" as const, temperature: units === "metric" ? 17 : 63 },
-    { time: "10 PM", icon: "cloud" as const, temperature: units === "metric" ? 17 : 63 },
-  ];
-
-  const handleSearch = (newLocation: string) => {
+  const handleSearch = async (newLocation: string) => {
     setIsLoading(true);
     setHasError(false);
     setHasNoResults(false);
-    setLocation(newLocation);
     
-    // Simulate API call with random outcomes
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      // Simulate different API responses (70% success, 15% error, 15% no results)
-      const random = Math.random();
-      
-      if (random < 0.15) {
-        // Simulate API error
-        setHasError(true);
-      } else if (random < 0.30) {
-        // Simulate no results found
-        setHasNoResults(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-weather', {
+        body: { location: newLocation, units }
+      });
+
+      if (error) {
+        if (error.message?.includes('Location not found')) {
+          setHasNoResults(true);
+        } else {
+          setHasError(true);
+          toast.error("Failed to fetch weather data");
+        }
+      } else if (data) {
+        setWeatherData(data);
+        setLocation(data.location);
       }
-      // else: successful result (default state)
-    }, 2000);
+    } catch (err) {
+      console.error('Error fetching weather:', err);
+      setHasError(true);
+      toast.error("Failed to fetch weather data");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRetry = () => {
@@ -82,11 +68,18 @@ const Index = () => {
     handleSearch(location);
   };
 
+  const handleUnitsChange = async (newUnits: "metric" | "imperial") => {
+    setUnits(newUnits);
+    if (weatherData) {
+      await handleSearch(location);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header 
         units={units} 
-        onUnitsChange={setUnits}
+        onUnitsChange={handleUnitsChange}
         unitPreferences={unitPreferences}
         onUnitPreferencesChange={setUnitPreferences}
       />
@@ -108,41 +101,41 @@ const Index = () => {
             <div className="lg:col-span-2 space-y-6">
               {isLoading ? (
                 <CurrentWeatherLoading />
-              ) : (
+              ) : weatherData ? (
                 <CurrentWeather
-                  location={location}
-                  date="Tuesday, Aug 5, 2025"
-                  temperature={currentTemp}
-                  icon="sun"
+                  location={weatherData.location}
+                  date={weatherData.date}
+                  temperature={weatherData.temperature}
+                  icon={weatherData.icon}
                   units={units}
                 />
-              )}
+              ) : null}
               
               {isLoading ? (
                 <WeatherStatsLoading />
-              ) : (
+              ) : weatherData ? (
                 <WeatherStats
-                  feelsLike={feelsLike}
-                  humidity={46}
-                  wind={wind}
-                  precipitation={precipitation}
+                  feelsLike={weatherData.feelsLike}
+                  humidity={weatherData.humidity}
+                  wind={weatherData.wind}
+                  precipitation={weatherData.precipitation}
                   units={units}
                 />
-              )}
+              ) : null}
               
               {isLoading ? (
                 <DailyForecastLoading />
-              ) : (
-                <DailyForecast forecast={dailyForecast} />
-              )}
+              ) : weatherData ? (
+                <DailyForecast forecast={weatherData.dailyForecast} />
+              ) : null}
             </div>
 
             <div className="lg:col-span-1">
               {isLoading ? (
                 <HourlyForecastLoading />
-              ) : (
-                <HourlyForecast forecast={hourlyForecast} />
-              )}
+              ) : weatherData ? (
+                <HourlyForecast forecast={weatherData.hourlyForecast} />
+              ) : null}
             </div>
           </div>
         )}
