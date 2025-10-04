@@ -59,11 +59,21 @@ const Index = () => {
     setHasNoResults(false);
     setLocation(newLocation);
     
-    // Simulate API call with random outcomes for demo
+    // Simulate API call with random outcomes
     setTimeout(() => {
       setIsLoading(false);
-      // You can modify this logic to show different states
-      // For now, it will show results successfully
+      
+      // Simulate different API responses (70% success, 15% error, 15% no results)
+      const random = Math.random();
+      
+      if (random < 0.15) {
+        // Simulate API error
+        setHasError(true);
+      } else if (random < 0.30) {
+        // Simulate no results found
+        setHasNoResults(true);
+      }
+      // else: successful result (default state)
     }, 2000);
   };
 
