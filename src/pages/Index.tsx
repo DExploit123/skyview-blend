@@ -11,11 +11,15 @@ import {
   DailyForecastLoading, 
   HourlyForecastLoading 
 } from "@/components/LoadingState";
+import { ErrorState } from "@/components/ErrorState";
+import { NoResultsState } from "@/components/NoResultsState";
 
 const Index = () => {
   const [units, setUnits] = useState<"metric" | "imperial">("imperial");
   const [location, setLocation] = useState("Berlin, Germany");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [hasNoResults, setHasNoResults] = useState(false);
   const [unitPreferences, setUnitPreferences] = useState<UnitPreferences>({
     temperature: "fahrenheit",
     windSpeed: "mph",
@@ -51,11 +55,21 @@ const Index = () => {
 
   const handleSearch = (newLocation: string) => {
     setIsLoading(true);
+    setHasError(false);
+    setHasNoResults(false);
     setLocation(newLocation);
-    // Simulate API call
+    
+    // Simulate API call with random outcomes for demo
     setTimeout(() => {
       setIsLoading(false);
+      // You can modify this logic to show different states
+      // For now, it will show results successfully
     }, 2000);
+  };
+
+  const handleRetry = () => {
+    setHasError(false);
+    handleSearch(location);
   };
 
   return (
@@ -75,47 +89,53 @@ const Index = () => {
           <SearchBar onSearch={handleSearch} />
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {isLoading ? (
-              <CurrentWeatherLoading />
-            ) : (
-              <CurrentWeather
-                location={location}
-                date="Tuesday, Aug 5, 2025"
-                temperature={currentTemp}
-                icon="sun"
-                units={units}
-              />
-            )}
-            
-            {isLoading ? (
-              <WeatherStatsLoading />
-            ) : (
-              <WeatherStats
-                feelsLike={feelsLike}
-                humidity={46}
-                wind={wind}
-                precipitation={precipitation}
-                units={units}
-              />
-            )}
-            
-            {isLoading ? (
-              <DailyForecastLoading />
-            ) : (
-              <DailyForecast forecast={dailyForecast} />
-            )}
-          </div>
+        {hasError ? (
+          <ErrorState onRetry={handleRetry} />
+        ) : hasNoResults ? (
+          <NoResultsState />
+        ) : (
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              {isLoading ? (
+                <CurrentWeatherLoading />
+              ) : (
+                <CurrentWeather
+                  location={location}
+                  date="Tuesday, Aug 5, 2025"
+                  temperature={currentTemp}
+                  icon="sun"
+                  units={units}
+                />
+              )}
+              
+              {isLoading ? (
+                <WeatherStatsLoading />
+              ) : (
+                <WeatherStats
+                  feelsLike={feelsLike}
+                  humidity={46}
+                  wind={wind}
+                  precipitation={precipitation}
+                  units={units}
+                />
+              )}
+              
+              {isLoading ? (
+                <DailyForecastLoading />
+              ) : (
+                <DailyForecast forecast={dailyForecast} />
+              )}
+            </div>
 
-          <div className="lg:col-span-1">
-            {isLoading ? (
-              <HourlyForecastLoading />
-            ) : (
-              <HourlyForecast forecast={hourlyForecast} />
-            )}
+            <div className="lg:col-span-1">
+              {isLoading ? (
+                <HourlyForecastLoading />
+              ) : (
+                <HourlyForecast forecast={hourlyForecast} />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
