@@ -6,6 +6,7 @@ import { CurrentWeather } from "@/components/CurrentWeather";
 import { WeatherStats } from "@/components/WeatherStats";
 import { DailyForecast } from "@/components/DailyForecast";
 import { HourlyForecast } from "@/components/HourlyForecast";
+import WeatherAIChat from "@/components/WeatherAIChat";
 import { 
   CurrentWeatherLoading, 
   WeatherStatsLoading, 
@@ -157,46 +158,55 @@ const Index = () => {
         ) : hasNoResults ? (
           <NoResultsState />
         ) : (
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              {isLoading ? (
-                <CurrentWeatherLoading />
-              ) : weatherData ? (
-                <CurrentWeather
-                  location={weatherData.location}
-                  date={weatherData.date}
-                  temperature={weatherData.temperature}
-                  icon={weatherData.icon}
-                  units={units}
-                />
-              ) : null}
-              
-              {isLoading ? (
-                <WeatherStatsLoading />
-              ) : weatherData ? (
-                <WeatherStats
-                  feelsLike={weatherData.feelsLike}
-                  humidity={weatherData.humidity}
-                  wind={weatherData.wind}
-                  precipitation={weatherData.precipitation}
-                  units={units}
-                />
-              ) : null}
-              
-              {isLoading ? (
-                <DailyForecastLoading />
-              ) : weatherData ? (
-                <DailyForecast forecast={weatherData.dailyForecast} />
-              ) : null}
+          <div className="space-y-6">
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                {isLoading ? (
+                  <CurrentWeatherLoading />
+                ) : weatherData ? (
+                  <CurrentWeather
+                    location={weatherData.location}
+                    date={weatherData.date}
+                    temperature={weatherData.temperature}
+                    icon={weatherData.icon}
+                    units={units}
+                  />
+                ) : null}
+                
+                {isLoading ? (
+                  <WeatherStatsLoading />
+                ) : weatherData ? (
+                  <WeatherStats
+                    feelsLike={weatherData.feelsLike}
+                    humidity={weatherData.humidity}
+                    wind={weatherData.wind}
+                    precipitation={weatherData.precipitation}
+                    units={units}
+                  />
+                ) : null}
+                
+                {isLoading ? (
+                  <DailyForecastLoading />
+                ) : weatherData ? (
+                  <DailyForecast forecast={weatherData.dailyForecast} />
+                ) : null}
+              </div>
+
+              <div className="lg:col-span-1">
+                {isLoading ? (
+                  <HourlyForecastLoading />
+                ) : weatherData ? (
+                  <HourlyForecast forecast={weatherData.hourlyForecast} />
+                ) : null}
+              </div>
             </div>
 
-            <div className="lg:col-span-1">
-              {isLoading ? (
-                <HourlyForecastLoading />
-              ) : weatherData ? (
-                <HourlyForecast forecast={weatherData.hourlyForecast} />
-              ) : null}
-            </div>
+            {/* AI Chat Section */}
+            {weatherData && (
+              <div className="mt-6">
+                <WeatherAIChat weatherData={weatherData} />
+              </div>
+            )}
           </div>
         )}
       </main>

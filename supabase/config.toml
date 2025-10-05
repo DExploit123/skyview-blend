@@ -2,3 +2,6 @@ project_id = "zkcvinrutvvtfeedsprt"
 
 [functions.get-weather]
 verify_jwt = false
+
+[functions.weather-ai-chat]
+verify_jwt = true
