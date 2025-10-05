@@ -1,5 +1,8 @@
-import { Sun, Settings, Check } from "lucide-react";
+import { Sun, Settings, Check, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +26,18 @@ interface HeaderProps {
 }
 
 export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreferencesChange }: HeaderProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error signing out");
+    } else {
+      toast.success("Signed out successfully");
+      navigate("/auth");
+    }
+  };
+
   const handleQuickSwitch = (targetUnits: "metric" | "imperial") => {
     const newPreferences: UnitPreferences = targetUnits === "metric"
       ? { temperature: "celsius", windSpeed: "kmh", precipitation: "mm" }
@@ -63,6 +78,12 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 bg-weather-card border-border/50">
+          <DropdownMenuItem 
+            onClick={() => handleQuickSwitch("metric")}
+            className="cursor-pointer hover:bg-secondary/70 transition-all"
+          >
+            Switch to Metric
+          </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => handleQuickSwitch("imperial")}
             className="cursor-pointer hover:bg-secondary/70 transition-all"
@@ -140,6 +161,16 @@ export const Header = ({ units, onUnitsChange, unitPreferences, onUnitPreference
               <Check className="absolute left-2 h-4 w-4" />
             )}
             Inches (in)
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator className="bg-border/30" />
+          
+          <DropdownMenuItem 
+            onClick={handleLogout}
+            className="cursor-pointer hover:bg-secondary/70 transition-all text-destructive"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

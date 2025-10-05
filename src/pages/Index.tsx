@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header, UnitPreferences } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { CurrentWeather } from "@/components/CurrentWeather";
@@ -15,8 +16,11 @@ import { ErrorState } from "@/components/ErrorState";
 import { NoResultsState } from "@/components/NoResultsState";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import type { Session } from "@supabase/supabase-js";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [session, setSession] = useState<Session | null>(null);
   const [units, setUnits] = useState<"metric" | "imperial">("imperial");
   const [location, setLocation] = useState("London");
   const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +34,29 @@ const Index = () => {
   });
 
   useEffect(() => {
-    handleSearch(location);
-  }, []);
+    // Check authentication
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (session) {
+      handleSearch(location);
+    }
+  }, [session]);
 
   const handleSearch = async (newLocation: string) => {
     setIsLoading(true);
@@ -71,9 +96,44 @@ const Index = () => {
   const handleUnitsChange = async (newUnits: "metric" | "imperial") => {
     setUnits(newUnits);
     if (weatherData) {
-      await handleSearch(location);
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('get-weather', {
+          body: { location, units: newUnits }
+        });
+
+        if (error) {
+          toast.error("Failed to fetch weather data");
+        } else if (data) {
+          setWeatherData(data);
+        }
+      } catch (err) {
+        console.error('Error fetching weather:', err);
+        toast.error("Failed to fetch weather data");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
+
+  const handleUnitPreferencesChange = async (newPreferences: UnitPreferences) => {
+    setUnitPreferences(newPreferences);
+    
+    // Auto-detect if all units match metric or imperial
+    if (newPreferences.temperature === "celsius" && 
+        newPreferences.windSpeed === "kmh" && 
+        newPreferences.precipitation === "mm") {
+      await handleUnitsChange("metric");
+    } else if (newPreferences.temperature === "fahrenheit" && 
+               newPreferences.windSpeed === "mph" && 
+               newPreferences.precipitation === "in") {
+      await handleUnitsChange("imperial");
+    }
+  };
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -81,7 +141,7 @@ const Index = () => {
         units={units} 
         onUnitsChange={handleUnitsChange}
         unitPreferences={unitPreferences}
-        onUnitPreferencesChange={setUnitPreferences}
+        onUnitPreferencesChange={handleUnitPreferencesChange}
       />
       
       <main className="container max-w-7xl mx-auto px-4 pb-12">
