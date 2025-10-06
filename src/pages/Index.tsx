@@ -7,6 +7,10 @@ import { WeatherStats } from "@/components/WeatherStats";
 import { DailyForecast } from "@/components/DailyForecast";
 import { HourlyForecast } from "@/components/HourlyForecast";
 import WeatherAIChat from "@/components/WeatherAIChat";
+import { PremiumModal } from "@/components/PremiumModal";
+import { WeatherPreferences } from "@/components/WeatherPreferences";
+import { PremiumBadge } from "@/components/PremiumBadge";
+import { Button } from "@/components/ui/button";
 import { 
   CurrentWeatherLoading, 
   WeatherStatsLoading, 
@@ -17,6 +21,7 @@ import { ErrorState } from "@/components/ErrorState";
 import { NoResultsState } from "@/components/NoResultsState";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Crown } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 
 const Index = () => {
@@ -33,6 +38,9 @@ const Index = () => {
     windSpeed: "mph",
     precipitation: "in",
   });
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -47,6 +55,11 @@ const Index = () => {
       setSession(session);
       if (!session) {
         navigate("/auth");
+      } else {
+        // Check premium status when session changes
+        setTimeout(() => {
+          checkPremiumStatus(session.user.id);
+        }, 0);
       }
     });
 
@@ -56,8 +69,31 @@ const Index = () => {
   useEffect(() => {
     if (session) {
       handleSearch(location);
+      checkPremiumStatus(session.user.id);
     }
   }, [session]);
+
+  const checkPremiumStatus = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single();
+
+    if (error) {
+      console.log('No active subscription');
+      setIsPremium(false);
+      return;
+    }
+
+    // Check if subscription is still valid
+    if (data && new Date(data.end_date) > new Date()) {
+      setIsPremium(true);
+    } else {
+      setIsPremium(false);
+    }
+  };
 
   const handleSearch = async (newLocation: string) => {
     setIsLoading(true);
@@ -147,11 +183,39 @@ const Index = () => {
       
       <main className="container max-w-7xl mx-auto px-4 pb-12">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-8">
-            How's the sky looking today?
-          </h2>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold">
+              How's the sky looking today?
+            </h2>
+            {isPremium && <PremiumBadge />}
+          </div>
+          {!isPremium && (
+            <Button 
+              variant="outline" 
+              className="mb-6"
+              onClick={() => setShowPremiumModal(true)}
+            >
+              <Crown className="h-4 w-4 mr-2" />
+              Upgrade to Premium
+            </Button>
+          )}
+          {isPremium && (
+            <Button 
+              variant="outline" 
+              className="mb-6"
+              onClick={() => setShowPreferences(!showPreferences)}
+            >
+              {showPreferences ? 'Hide' : 'Show'} Alert Preferences
+            </Button>
+          )}
           <SearchBar onSearch={handleSearch} />
         </div>
+
+        {isPremium && showPreferences && session && (
+          <div className="mb-6 max-w-2xl mx-auto">
+            <WeatherPreferences userId={session.user.id} />
+          </div>
+        )}
 
         {hasError ? (
           <ErrorState onRetry={handleRetry} />
@@ -210,6 +274,14 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {session && (
+        <PremiumModal 
+          open={showPremiumModal} 
+          onOpenChange={setShowPremiumModal}
+          userEmail={session.user.email || ''}
+        />
+      )}
     </div>
   );
 };

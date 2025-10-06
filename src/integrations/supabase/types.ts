@@ -35,15 +35,99 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          end_date: string
+          id: string
+          paystack_reference: string | null
+          paystack_subscription_code: string | null
+          plan_type: string
+          start_date: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          end_date: string
+          id?: string
+          paystack_reference?: string | null
+          paystack_subscription_code?: string | null
+          plan_type: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          end_date?: string
+          id?: string
+          paystack_reference?: string | null
+          paystack_subscription_code?: string | null
+          plan_type?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weather_preferences: {
+        Row: {
+          alert_extreme_temp: boolean | null
+          alert_rain: boolean | null
+          alert_snow: boolean | null
+          alert_wind: boolean | null
+          created_at: string
+          id: string
+          notification_method: string | null
+          preferred_alert_time: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_extreme_temp?: boolean | null
+          alert_rain?: boolean | null
+          alert_snow?: boolean | null
+          alert_wind?: boolean | null
+          created_at?: string
+          id?: string
+          notification_method?: string | null
+          preferred_alert_time?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_extreme_temp?: boolean | null
+          alert_rain?: boolean | null
+          alert_snow?: boolean | null
+          alert_wind?: boolean | null
+          created_at?: string
+          id?: string
+          notification_method?: string | null
+          preferred_alert_time?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_active_subscription: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      subscription_status: "active" | "cancelled" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -170,6 +254,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      subscription_status: ["active", "cancelled", "expired"],
+    },
   },
 } as const
