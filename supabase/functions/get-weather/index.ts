@@ -12,19 +12,26 @@ serve(async (req) => {
   }
 
   try {
-    const { location, units } = await req.json();
+    const { location, lat, lon, units } = await req.json();
     const apiKey = Deno.env.get('OPENWEATHER_API_KEY');
 
     if (!apiKey) {
       throw new Error('OpenWeather API key not configured');
     }
 
-    console.log('Fetching weather for:', location, 'units:', units);
+    console.log('Fetching weather for:', location || `${lat},${lon}`, 'units:', units);
 
     // Get current weather and coordinates
-    const currentResponse = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&units=${units}&appid=${apiKey}`
-    );
+    let currentResponse;
+    if (lat && lon) {
+      currentResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${apiKey}`
+      );
+    } else {
+      currentResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&units=${units}&appid=${apiKey}`
+      );
+    }
 
     if (!currentResponse.ok) {
       if (currentResponse.status === 404) {

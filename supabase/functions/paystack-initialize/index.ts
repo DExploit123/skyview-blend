@@ -35,8 +35,8 @@ serve(async (req) => {
     const { email, plan }: InitializePaymentRequest = await req.json();
     
     const amounts = {
-      monthly: 2000, // 2000 kobo = 20 NGN
-      yearly: 20000, // 20000 kobo = 200 NGN
+      monthly: 50000, // 50000 kobo = 500 NGN
+      yearly: 500000, // 500000 kobo = 5000 NGN
     };
 
     const amount = amounts[plan];
@@ -51,7 +51,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         email,
-        amount: amount * 100, // Convert to kobo
+        amount: amount, // Already in kobo
         currency: 'NGN',
         metadata: {
           user_id: user.id,

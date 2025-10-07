@@ -71,7 +71,7 @@ export const PremiumModal = ({ open, onOpenChange, userEmail }: PremiumModalProp
             <div className="rounded-lg border p-4 space-y-3">
               <div>
                 <h4 className="font-semibold">Monthly</h4>
-                <p className="text-2xl font-bold">₦20<span className="text-sm font-normal">/month</span></p>
+                <p className="text-2xl font-bold">₦500<span className="text-sm font-normal">/month</span></p>
               </div>
               <Button
                 className="w-full"
@@ -88,8 +88,8 @@ export const PremiumModal = ({ open, onOpenChange, userEmail }: PremiumModalProp
               </div>
               <div>
                 <h4 className="font-semibold">Yearly</h4>
-                <p className="text-2xl font-bold">₦200<span className="text-sm font-normal">/year</span></p>
-                <p className="text-xs text-muted-foreground">Save ₦40/year</p>
+                <p className="text-2xl font-bold">₦5,000<span className="text-sm font-normal">/year</span></p>
+                <p className="text-xs text-muted-foreground">Save ₦1,000/year</p>
               </div>
               <Button
                 className="w-full"

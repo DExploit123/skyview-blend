@@ -14,9 +14,10 @@ interface Message {
 
 interface WeatherAIChatProps {
   weatherData: any;
+  isPremium?: boolean;
 }
 
-const WeatherAIChat = ({ weatherData }: WeatherAIChatProps) => {
+const WeatherAIChat = ({ weatherData, isPremium = false }: WeatherAIChatProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -87,6 +88,11 @@ const WeatherAIChat = ({ weatherData }: WeatherAIChatProps) => {
       <div className="p-4 border-b flex items-center gap-2">
         <Bot className="h-5 w-5 text-primary" />
         <h3 className="font-semibold">Weather AI Assistant</h3>
+        {isPremium && (
+          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+            Priority Support
+          </span>
+        )}
         <Sparkles className="h-4 w-4 text-primary ml-auto" />
       </div>
 

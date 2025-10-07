@@ -10,6 +10,8 @@ import WeatherAIChat from "@/components/WeatherAIChat";
 import { PremiumModal } from "@/components/PremiumModal";
 import { WeatherPreferences } from "@/components/WeatherPreferences";
 import { PremiumBadge } from "@/components/PremiumBadge";
+import { TravelMode } from "@/components/TravelMode";
+import { WeatherAlerts } from "@/components/WeatherAlerts";
 import { Button } from "@/components/ui/button";
 import { 
   CurrentWeatherLoading, 
@@ -28,8 +30,9 @@ const Index = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [units, setUnits] = useState<"metric" | "imperial">("imperial");
-  const [location, setLocation] = useState("London");
+  const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeolocating, setIsGeolocating] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [hasNoResults, setHasNoResults] = useState(false);
   const [weatherData, setWeatherData] = useState<any>(null);
@@ -68,10 +71,54 @@ const Index = () => {
 
   useEffect(() => {
     if (session) {
-      handleSearch(location);
       checkPremiumStatus(session.user.id);
+      getUserLocation();
     }
   }, [session]);
+
+  const getUserLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          await handleLocationByCoords(latitude, longitude);
+          setIsGeolocating(false);
+        },
+        (error) => {
+          console.log("Geolocation error:", error);
+          setLocation("London");
+          handleSearch("London");
+          setIsGeolocating(false);
+        }
+      );
+    } else {
+      setLocation("London");
+      handleSearch("London");
+      setIsGeolocating(false);
+    }
+  };
+
+  const handleLocationByCoords = async (lat: number, lon: number) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-weather', {
+        body: { lat, lon, units }
+      });
+
+      if (error) {
+        throw error;
+      } else if (data) {
+        setWeatherData(data);
+        setLocation(data.location);
+      }
+    } catch (err) {
+      console.error('Error fetching weather by coords:', err);
+      setLocation("London");
+      handleSearch("London");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const checkPremiumStatus = async (userId: string) => {
     const { data, error } = await supabase
@@ -217,6 +264,13 @@ const Index = () => {
           </div>
         )}
 
+        {isPremium && weatherData && session && (
+          <div className="mb-6 space-y-6">
+            <WeatherAlerts userId={session.user.id} weatherData={weatherData} />
+            <TravelMode units={units} />
+          </div>
+        )}
+
         {hasError ? (
           <ErrorState onRetry={handleRetry} />
         ) : hasNoResults ? (
@@ -268,7 +322,7 @@ const Index = () => {
             {/* AI Chat Section */}
             {weatherData && (
               <div className="mt-6">
-                <WeatherAIChat weatherData={weatherData} />
+                <WeatherAIChat weatherData={weatherData} isPremium={isPremium} />
               </div>
             )}
           </div>
