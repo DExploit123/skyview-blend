@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { location, lat, lon, units } = await req.json();
+    const { location, lat, lon, units = 'metric' } = await req.json();
     const apiKey = Deno.env.get('OPENWEATHER_API_KEY');
 
     if (!apiKey) {
@@ -34,13 +34,16 @@ serve(async (req) => {
     }
 
     if (!currentResponse.ok) {
+      const errorText = await currentResponse.text();
+      console.error('OpenWeather API error response:', errorText);
+      
       if (currentResponse.status === 404) {
         return new Response(JSON.stringify({ error: 'Location not found' }), {
           status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      throw new Error(`Weather API error: ${currentResponse.status}`);
+      throw new Error(`Weather API error: ${currentResponse.status} - ${errorText}`);
     }
 
     const currentData = await currentResponse.json();

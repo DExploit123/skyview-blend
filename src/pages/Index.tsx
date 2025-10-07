@@ -101,18 +101,22 @@ const Index = () => {
   const handleLocationByCoords = async (lat: number, lon: number) => {
     setIsLoading(true);
     try {
+      console.log('Fetching weather for coords:', lat, lon, 'units:', units);
       const { data, error } = await supabase.functions.invoke('get-weather', {
         body: { lat, lon, units }
       });
 
       if (error) {
+        console.error('Edge function error:', error);
         throw error;
       } else if (data) {
         setWeatherData(data);
         setLocation(data.location);
+        toast.success(`Showing weather for ${data.location}`);
       }
     } catch (err) {
       console.error('Error fetching weather by coords:', err);
+      toast.error("Couldn't get weather for your location, showing London instead");
       setLocation("London");
       handleSearch("London");
     } finally {
@@ -126,10 +130,10 @@ const Index = () => {
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
-      .single();
+      .maybeSingle();
 
     if (error) {
-      console.log('No active subscription');
+      console.error('Error checking subscription:', error);
       setIsPremium(false);
       return;
     }

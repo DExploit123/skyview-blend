@@ -35,7 +35,7 @@ export const PremiumModal = ({ open, onOpenChange, userEmail }: PremiumModalProp
 
   const features = [
     "Personalized weather alerts",
-    "Extended 14-day forecasts",
+    "Extended 5-day forecasts",
     "Travel mode with route recommendations",
     "Ad-free experience",
     "Priority AI chat support",
