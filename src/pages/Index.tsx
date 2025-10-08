@@ -125,6 +125,20 @@ const Index = () => {
   };
 
   const checkPremiumStatus = async (userId: string) => {
+    // Check if user has admin role
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    if (roleData) {
+      setIsPremium(true);
+      return;
+    }
+
+    // Check active subscription
     const { data, error } = await supabase
       .from('subscriptions')
       .select('*')
